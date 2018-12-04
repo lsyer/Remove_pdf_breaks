@@ -16,9 +16,8 @@ Usage:
 
 On Linux, install xsel via package manager. For example, in Ubuntu:
     sudo apt-get install xsel
-On Windows, win32clipboard and win32con are required:
-	pip install win32clipboard
-	pip install win32con
+On Windows, win32clipboard and win32con are required, and there are all included in pywin32:
+	pip install pywin32
 	
 """
 import platform
@@ -52,12 +51,12 @@ def winclipboard():
 	def copyW(str):
 		wc.OpenClipboard()
 		wc.EmptyClipboard()
-		wc.SetClipboardData(win32con.CF_TEXT, str)
+		wc.SetClipboardData(win32con.CF_UNICODETEXT, str)
 		wc.CloseClipboard()
 
 	def pasteW():
 		wc.OpenClipboard()
-		out = wc.GetClipboardData(win32con.CF_TEXT)
+		out = wc.GetClipboardData(win32con.CF_UNICODETEXT)
 		wc.CloseClipboard()
 		return out
 		
@@ -83,7 +82,7 @@ def newstr_e(matched):
     
 def removebreak(copy_text):
 	#print(copy_text,type(copy_text),'\n')
-	
+
 	p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])') #such as "commun-\nication"
 	copy_text = re.sub(p1,newstr1,copy_text)
 	
