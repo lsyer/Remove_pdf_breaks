@@ -63,6 +63,31 @@ def winclipboard():
 		
 	return copyW,pasteW
 	
+def newstr(matched):
+    newstr = matched.group('value')
+    #print(newstr)
+    newstr = " "+newstr[-1]
+    return newstr
+    
+def newstr2(matched):
+    newstr = matched.group('value')
+    #print(newstr)
+    newstr = newstr[-1]
+    return newstr
+    
+def removebreak(copy_text):
+	#print(copy_text,type(copy_text),'\n')
+	
+	p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])')
+	copy_text = re.sub(p1,newstr2,copy_text)
+	
+	p2 = re.compile('(?P<value>(\n|\r|\r\n)\s*[^A-Z])')
+	copy_text = re.sub(p2,newstr,copy_text)
+	
+	#print(copy_text,type(copy_text),'\n')
+	
+	return copy_text
+	
 global copy, paste
 sysstr = platform.system()
 if(sysstr =="Windows"):
@@ -71,23 +96,6 @@ else:
 	copy, paste = linuxclipboard()
 
 copy_text = paste()
-
-#print(copy_text,type(copy_text),'\n')
-print(copy_text)
-
-p1 = re.compile(r'[(\n)(\r)(\r\n)][\s+]')
-p2 = re.compile(r'[(\n)(\r)(\r\n)]')
-copy_text = re.sub(p1,'<br>',copy_text)
-copy_text = re.sub(p2,' ',copy_text)
-
-#copy_text = copy_text.replace(b'\r\n',b' ')
-#copy_text = copy_text.replace(b'\n',b' ')
-#copy_text = copy_text.replace(b'\r',b' ')
-copy_text = copy_text.replace(b'- ',b'')
-copy_text = copy_text.replace(b'<br>',b'\r\n ')
-
-#print(copy_text,type(copy_text),'\n')
-print(copy_text)
-
+copy_text = removebreak(copy_text)
 copy(copy_text)
 print('done')
