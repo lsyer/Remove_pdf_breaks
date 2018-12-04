@@ -63,26 +63,35 @@ def winclipboard():
 		
 	return copyW,pasteW
 	
-def newstr(matched):
-    newstr = matched.group('value')
-    #print(newstr)
-    newstr = " "+newstr[-1]
-    return newstr
-    
-def newstr2(matched):
+def newstr1(matched):
     newstr = matched.group('value')
     #print(newstr)
     newstr = newstr[-1]
     return newstr
     
+def newstr2(matched):
+    newstr = matched.group('value')
+    #print(newstr)
+    newstr = newstr[0]+" "+newstr[-1]
+    return newstr
+    
+def newstr_e(matched):
+    newstr = matched.group('value')
+    #print(newstr)
+    newstr = " "+newstr[-1]
+    return newstr
+    
 def removebreak(copy_text):
 	#print(copy_text,type(copy_text),'\n')
 	
-	p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])')
-	copy_text = re.sub(p1,newstr2,copy_text)
+	p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])') #such as "commun-\nication"
+	copy_text = re.sub(p1,newstr1,copy_text)
 	
-	p2 = re.compile('(?P<value>(\n|\r|\r\n)\s*[^A-Z])')
-	copy_text = re.sub(p2,newstr,copy_text)
+	p2 = re.compile('(?P<value>[,a-zA-Z](\n|\r|\r\n)[A-Z])') #such as "we think that\n TCP is good enough to ..."
+	copy_text = re.sub(p2,newstr2,copy_text)
+	
+	p_e = re.compile('(?P<value>(\n|\r|\r\n)\s*[^A-Z])') #such as "... to finsh some\n works like ..."
+	copy_text = re.sub(p_e,newstr_e,copy_text)
 	
 	#print(copy_text,type(copy_text),'\n')
 	
