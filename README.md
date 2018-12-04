@@ -1,4 +1,4 @@
-# Remove-line-breaks-
+# Remove-pdf-breaks
 As a novice, when reading pdfs of a new domain, we often copy some sentences to the translation site. However, the site will not automatically remove PDF line breaks, which makes each sentence incomplete and the translation inaccurate. And this small program solves this problem. 
 Usage: Usage:
   1) Copy some paragraphies from PDF;
