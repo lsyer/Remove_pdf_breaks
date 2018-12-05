@@ -26,11 +26,8 @@ import time
 
 
 def linuxclipboard():
-    global last_text
-
     def copyL(str, p=True, c=True):
         from subprocess import Popen, PIPE
-
         if p:
             p = Popen(['xsel', '-pi'], stdin=PIPE)
             p.communicate(input=str)
@@ -52,7 +49,6 @@ def linuxclipboard():
 def winclipboard():
     import win32clipboard as wc
     import win32con
-
     def copyW(str):
         wc.OpenClipboard()
         wc.EmptyClipboard()
@@ -79,14 +75,12 @@ def newstr1(matched):
 
 def newstr2(matched):
     newstr = matched.group('value')
-    print(newstr)
     newstr = newstr[0] + " " + newstr[-1]
     return newstr
 
 
 def newstr_e(matched):
     newstr = matched.group('value')
-    print(newstr)
     newstr = " " + newstr[-1]
     return newstr
 
@@ -108,9 +102,6 @@ def removebreak(copy_text):
     return copy_text
 
 
-# global copy, paste
-
-
 def get_copy_paste(sysstr):
     if sysstr == "Windows":
         copy, paste = winclipboard()
@@ -121,7 +112,6 @@ def get_copy_paste(sysstr):
 
 if __name__ == "__main__":
     sysstr = platform.system()
-
     copy, paste = get_copy_paste(sysstr)
     last_text = paste()
     while True:
@@ -130,7 +120,6 @@ if __name__ == "__main__":
             copy_text = removebreak(copy_text)
             copy(copy_text)
             last_text = copy_text
-            print(copy_text)
             print('done')
         else:
             time.sleep(0.2)
