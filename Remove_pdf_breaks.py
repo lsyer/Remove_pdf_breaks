@@ -34,13 +34,15 @@ def linuxclipboard():
         if c:
             p = Popen(['xsel', '-bi'], stdin=PIPE)
             p.communicate(input=str)
+        # Popen('echo "'+str+'" | xclip -selection clipboard',shell=True,stdin=PIPE).communicate()
 
     def pasteL():
         from subprocess import Popen, PIPE
 
         # p = Popen('xsel', shell=True, stdout=PIPE)
         # out = (p.stdout.readlines())[0] //oneline
-        out = (Popen(['xsel'], shell=True, stdout=PIPE).communicate())[0]
+        out = (Popen(['xsel -b'], shell=True, stdout=PIPE).communicate())[0]
+        # out = (Popen('xclip -o -selection clipboard',stdout=PIPE,shell=True).communicate())[0]
         return out
 
     return copyL, pasteL
@@ -113,13 +115,19 @@ def get_copy_paste(sysstr):
 if __name__ == "__main__":
     sysstr = platform.system()
     copy, paste = get_copy_paste(sysstr)
-    last_text = paste()
+    last_text = ''
+    i = 0
     while True:
+    # if True:
         copy_text = paste()
         if last_text != copy_text:
+            # print(copy_text,type(copy_text),'\n')
+            # print(last_text,type(last_text),'\n')
             copy_text = removebreak(copy_text)
-            copy(copy_text)
             last_text = copy_text
-            print('done')
+            # print(copy_text,type(copy_text),'\n')
+            copy(copy_text)
+            i+=1
+            print('done ' + str(i) + 'th time')
         else:
             time.sleep(0.2)
