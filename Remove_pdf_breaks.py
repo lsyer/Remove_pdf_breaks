@@ -22,88 +22,115 @@ On Windows, win32clipboard and win32con are required, and there are all included
 """
 import platform
 import re
+import time
+
 
 def linuxclipboard():
-	def copyL(str, p=True, c=True):
-		from subprocess import Popen, PIPE
+    global last_text
 
-		if p:
-			p = Popen(['xsel', '-pi'], stdin=PIPE)
-			p.communicate(input=str)
-		if c:
-			p = Popen(['xsel', '-bi'], stdin=PIPE)
-			p.communicate(input=str)
+    def copyL(str, p=True, c=True):
+        from subprocess import Popen, PIPE
 
-	def pasteL():
-		from subprocess import Popen, PIPE
+        if p:
+            p = Popen(['xsel', '-pi'], stdin=PIPE)
+            p.communicate(input=str)
+        if c:
+            p = Popen(['xsel', '-bi'], stdin=PIPE)
+            p.communicate(input=str)
 
-		#p = Popen('xsel', shell=True, stdout=PIPE)
-		#out = (p.stdout.readlines())[0] //oneline
-		out = (Popen(['xsel'],shell=True,stdout=PIPE).communicate())[0]
-		return out
-		
-	return copyL,pasteL
+    def pasteL():
+        from subprocess import Popen, PIPE
+
+        # p = Popen('xsel', shell=True, stdout=PIPE)
+        # out = (p.stdout.readlines())[0] //oneline
+        out = (Popen(['xsel'], shell=True, stdout=PIPE).communicate())[0]
+        return out
+
+    return copyL, pasteL
+
 
 def winclipboard():
-	import win32clipboard as wc
-	import win32con
-	
-	def copyW(str):
-		wc.OpenClipboard()
-		wc.EmptyClipboard()
-		wc.SetClipboardData(win32con.CF_UNICODETEXT, str)
-		wc.CloseClipboard()
+    import win32clipboard as wc
+    import win32con
 
-	def pasteW():
-		wc.OpenClipboard()
-		out = wc.GetClipboardData(win32con.CF_UNICODETEXT)
-		wc.CloseClipboard()
-		return out
-		
-	return copyW,pasteW
-	
+    def copyW(str):
+        wc.OpenClipboard()
+        wc.EmptyClipboard()
+        wc.SetClipboardData(win32con.CF_UNICODETEXT, str)
+        wc.CloseClipboard()
+
+    def pasteW():
+        wc.OpenClipboard()
+        if wc.IsClipboardFormatAvailable(win32con.CF_UNICODETEXT):
+            out = wc.GetClipboardData(win32con.CF_UNICODETEXT)
+        else:
+            out = ""
+        wc.CloseClipboard()
+        return out
+
+    return copyW, pasteW
+
+
 def newstr1(matched):
     newstr = matched.group('value')
-    #print(newstr)
     newstr = newstr[-1]
     return newstr
-    
+
+
 def newstr2(matched):
     newstr = matched.group('value')
-    #print(newstr)
-    newstr = newstr[0]+" "+newstr[-1]
+    print(newstr)
+    newstr = newstr[0] + " " + newstr[-1]
     return newstr
-    
+
+
 def newstr_e(matched):
     newstr = matched.group('value')
-    #print(newstr)
-    newstr = " "+newstr[-1]
+    print(newstr)
+    newstr = " " + newstr[-1]
     return newstr
-    
+
+
 def removebreak(copy_text):
-	#print(copy_text,type(copy_text),'\n')
+    # print(copy_text,type(copy_text),'\n')
 
-	p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])') #such as "commun-\nication"
-	copy_text = re.sub(p1,newstr1,copy_text)
-	
-	p2 = re.compile('(?P<value>[,a-zA-Z](\n|\r|\r\n)[A-Z])') #such as "we think that\n TCP is good enough to ..."
-	copy_text = re.sub(p2,newstr2,copy_text)
-	
-	p_e = re.compile('(?P<value>(\n|\r|\r\n)\s*[^A-Z])') #such as "... to finsh some\n works like ..."
-	copy_text = re.sub(p_e,newstr_e,copy_text)
-	
-	#print(copy_text,type(copy_text),'\n')
-	
-	return copy_text
-	
-global copy, paste
-sysstr = platform.system()
-if(sysstr =="Windows"):
-	copy, paste = winclipboard()
-else:
-	copy, paste = linuxclipboard()
+    p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])')  # such as "commun-\nication"
+    copy_text = re.sub(p1, newstr1, copy_text)
+    # copy_text = re.sub(p1," ", copy_text)
+    p2 = re.compile('(?P<value>[,\w](\n|\r|\r\n)[A-Z])')  # such as "we think that\n TCP is good enough to ..."
+    copy_text = re.sub(p2, newstr2, copy_text)
 
-copy_text = paste()
-copy_text = removebreak(copy_text)
-copy(copy_text)
-print('done')
+    p_e = re.compile('(?P<value>(\n|\r|\r\n)\s*[^A-Z])')  # such as "... to finsh some\n works like ..."
+    copy_text = re.sub(p_e, newstr_e, copy_text)
+
+    # print(copy_text,type(copy_text),'\n')
+
+    return copy_text
+
+
+# global copy, paste
+
+
+def get_copy_paste(sysstr):
+    if sysstr == "Windows":
+        copy, paste = winclipboard()
+    else:
+        copy, paste = linuxclipboard()
+    return copy, paste
+
+
+if __name__ == "__main__":
+    sysstr = platform.system()
+
+    copy, paste = get_copy_paste(sysstr)
+    last_text = paste()
+    while True:
+        copy_text = paste()
+        if last_text != copy_text:
+            copy_text = removebreak(copy_text)
+            copy(copy_text)
+            last_text = copy_text
+            print(copy_text)
+            print('done')
+        else:
+            time.sleep(0.2)
