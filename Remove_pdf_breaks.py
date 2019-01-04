@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*
 """
 Remove_pdf_breaks
 
@@ -83,7 +84,18 @@ def newstr2(matched):
 
 def newstr_e(matched):
     newstr = matched.group('value')
-    newstr = " " + newstr[-1]
+    #print(newstr,type(newstr),'\n')
+    #print(newstr[0],type(newstr),'\n')
+    #print(newstr[-1],type(newstr),'\n')
+    if (newstr[-1].isalnum()):
+    #if (('a'<=newstr[-1] and newstr[-1]<='z') or ('A'<=newstr[-1] and newstr[-1]<='Z') or ('0'<=newstr[-1] and newstr[-1]<='9')):
+        newstr = newstr[0] + " " + newstr[-1]
+    else:
+        if(newstr[0]!='\x82' and newstr[0]!='\x81' and newstr[0]!='\x9d'): #。！”
+            newstr = newstr[0] + "" + newstr[-1]
+        #else:
+            #newstr = newstr[0] + "\r\n" + newstr[-1]
+	    
     return newstr
 
 
@@ -93,10 +105,10 @@ def removebreak(copy_text):
     p1 = re.compile('(?P<value>-(\n|\r|\r\n)[a-z])')  # such as "commun-\nication"
     copy_text = re.sub(p1, newstr1, copy_text)
     # copy_text = re.sub(p1," ", copy_text)
-    p2 = re.compile('(?P<value>[,\w](\n|\r|\r\n)[A-Z])')  # such as "we think that\n TCP is good enough to ..."
+    p2 = re.compile('(?P<value>[,\w](\n|\r|\r\n)[A-Z])')  # such as "we think that,\n TCP is good enough to ..."
     copy_text = re.sub(p2, newstr2, copy_text)
 
-    p_e = re.compile('(?P<value>(\n|\r|\r\n)\s*[^A-Z])')  # such as "... to finsh some\n works like ..."
+    p_e = re.compile('(?P<value>[^.?!](\n|\r|\r\n)\s*(.))')  # such as "... to finsh some\n works like ..."
     copy_text = re.sub(p_e, newstr_e, copy_text)
 
     # print(copy_text,type(copy_text),'\n')
